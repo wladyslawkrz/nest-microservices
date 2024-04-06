@@ -1,41 +1,46 @@
 import { Controller } from '@nestjs/common';
 import { UsersService } from './users.service';
 import {
+  AuthServiceController,
+  AuthServiceControllerMethods,
   CreateUserDto,
-  FindOneUserDto,
-  PaginationDto,
-  UpdateUserDto,
-  UsersServiceController,
-  UsersServiceControllerMethods,
+  EmptyResponse,
+  RefreshTokensDto,
+  RefreshTokensResponse,
+  SignInDto,
 } from '@app/common';
 import { Observable } from 'rxjs';
 
 @Controller()
-@UsersServiceControllerMethods()
-export class UsersController implements UsersServiceController {
+@AuthServiceControllerMethods()
+export class UsersController implements AuthServiceController {
   constructor(private readonly usersService: UsersService) {}
 
-  createUser(createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  signUp(
+    request: CreateUserDto,
+  ): EmptyResponse | Promise<EmptyResponse> | Observable<EmptyResponse> {
+    return undefined;
   }
 
-  findAllUsers() {
-    return this.usersService.findAll();
+  signIn(
+    request: SignInDto,
+  ): EmptyResponse | Promise<EmptyResponse> | Observable<EmptyResponse> {
+    console.log('pending req');
+    return this.usersService.signIn(request);
   }
 
-  findOneUser(findOneUserDto: FindOneUserDto) {
-    return this.usersService.findOne(findOneUserDto.id);
+  refresh(
+    request: RefreshTokensDto,
+  ):
+    | RefreshTokensResponse
+    | Promise<RefreshTokensResponse>
+    | Observable<RefreshTokensResponse> {
+    return undefined;
   }
 
-  updateUser(updateUserDto: UpdateUserDto) {
-    return this.usersService.update(updateUserDto.id, updateUserDto);
-  }
-
-  removeUser(findOneUserDto: FindOneUserDto) {
-    return this.usersService.remove(findOneUserDto.id);
-  }
-
-  queryUsers(paginationDtoStream: Observable<PaginationDto>) {
-    return this.usersService.queryUsers(paginationDtoStream);
+  logout(
+    request: RefreshTokensDto,
+  ): EmptyResponse | Promise<EmptyResponse> | Observable<EmptyResponse> {
+    throw new Error('Method not implemented.');
   }
 }

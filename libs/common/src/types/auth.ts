@@ -1,112 +1,74 @@
 /* eslint-disable */
-import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
-import { Observable } from 'rxjs';
+import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
+import { Observable } from "rxjs";
 
-export const protobufPackage = 'auth';
+export const protobufPackage = "auth";
 
-export interface PaginationDto {
-  page: number;
-  skip: number;
-}
-
-export interface UpdateUserDto {
-  id: string;
-  socialMedia: SocialMedia | undefined;
-}
-
-export interface FindOneUserDto {
-  id: string;
-}
-
-export interface Empty {}
-
-export interface Users {
-  users: User[];
+export interface EmptyResponse {
 }
 
 export interface CreateUserDto {
-  username: string;
+  login: string;
+  email: string;
   password: string;
-  age: number;
+  phoneNumber?: string | undefined;
+  firstName?: string | undefined;
+  midName?: string | undefined;
+  lastName?: string | undefined;
+  userRole?: string | undefined;
 }
 
-export interface User {
-  id: string;
-  username: string;
+export interface SignInDto {
+  loginOrEmail: string;
   password: string;
-  age: number;
-  subscribed: boolean;
-  socialMedia: SocialMedia | undefined;
 }
 
-export interface SocialMedia {
-  twitterUri?: string | undefined;
-  fbUri?: string | undefined;
+export interface RefreshTokensDto {
+  refreshToken: string;
 }
 
-export const AUTH_PACKAGE_NAME = 'auth';
-
-export interface UsersServiceClient {
-  createUser(request: CreateUserDto): Observable<User>;
-
-  findAllUsers(request: Empty): Observable<Users>;
-
-  findOneUser(request: FindOneUserDto): Observable<User>;
-
-  updateUser(request: UpdateUserDto): Observable<User>;
-
-  removeUser(request: FindOneUserDto): Observable<User>;
-
-  queryUsers(request: Observable<PaginationDto>): Observable<Users>;
+export interface RefreshTokensResponse {
+  accessToken: string;
+  refreshToken: string;
 }
 
-export interface UsersServiceController {
-  createUser(request: CreateUserDto): Promise<User> | Observable<User> | User;
+export const AUTH_PACKAGE_NAME = "auth";
 
-  findAllUsers(request: Empty): Promise<Users> | Observable<Users> | Users;
+export interface AuthServiceClient {
+  signUp(request: CreateUserDto): Observable<EmptyResponse>;
 
-  findOneUser(request: FindOneUserDto): Promise<User> | Observable<User> | User;
+  signIn(request: SignInDto): Observable<EmptyResponse>;
 
-  updateUser(request: UpdateUserDto): Promise<User> | Observable<User> | User;
+  refresh(request: RefreshTokensDto): Observable<RefreshTokensResponse>;
 
-  removeUser(request: FindOneUserDto): Promise<User> | Observable<User> | User;
-
-  queryUsers(request: Observable<PaginationDto>): Observable<Users>;
+  logout(request: RefreshTokensDto): Observable<EmptyResponse>;
 }
 
-export function UsersServiceControllerMethods() {
+export interface AuthServiceController {
+  signUp(request: CreateUserDto): Promise<EmptyResponse> | Observable<EmptyResponse> | EmptyResponse;
+
+  signIn(request: SignInDto): Promise<EmptyResponse> | Observable<EmptyResponse> | EmptyResponse;
+
+  refresh(
+    request: RefreshTokensDto,
+  ): Promise<RefreshTokensResponse> | Observable<RefreshTokensResponse> | RefreshTokensResponse;
+
+  logout(request: RefreshTokensDto): Promise<EmptyResponse> | Observable<EmptyResponse> | EmptyResponse;
+}
+
+export function AuthServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = [
-      'createUser',
-      'findAllUsers',
-      'findOneUser',
-      'updateUser',
-      'removeUser',
-    ];
+    const grpcMethods: string[] = ["signUp", "signIn", "refresh", "logout"];
     for (const method of grpcMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(
-        constructor.prototype,
-        method,
-      );
-      GrpcMethod('UsersService', method)(
-        constructor.prototype[method],
-        method,
-        descriptor,
-      );
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcMethod("AuthService", method)(constructor.prototype[method], method, descriptor);
     }
-    const grpcStreamMethods: string[] = ['queryUsers'];
+    const grpcStreamMethods: string[] = [];
     for (const method of grpcStreamMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(
-        constructor.prototype,
-        method,
-      );
-      GrpcStreamMethod('UsersService', method)(
-        constructor.prototype[method],
-        method,
-        descriptor,
-      );
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcStreamMethod("AuthService", method)(constructor.prototype[method], method, descriptor);
     }
   };
 }
 
-export const USERS_SERVICE_NAME = 'UsersService';
+export const AUTH_SERVICE_NAME = "AuthService";
